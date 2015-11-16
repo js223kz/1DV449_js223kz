@@ -8,13 +8,26 @@
 
 namespace controllers;
 
+use views\Layout;
+
 require_once('views/StartView.php');
+require_once('views/Layout.php');
+require_once('models/StartScraper.php');
+require_once('models/CalendarScraper.php');
+
+
 
 class StartController
 {
-        private $renderStartView;
-        public function __construct()
+        private $startView;
+        public function __construct(Layout $commonView)
         {
-            $this.$this->renderStartView = new \views\StartView();
+            $this->startView = new \views\StartView();
+            $commonView->render($this->startView->renderHTML());
+
+            if($this->startView->startScraping()){
+                $calendarUrl = new \models\StartScraper($this->startView->getUrl());
+                return new \models\CalendarScraper($calendarUrl->getcalendarUrl());
+            }
         }
 }

@@ -9,13 +9,12 @@
 namespace models;
 
 require_once('models/Scraper.php');
-require_once('models/Calendar.php');
 require_once('models/Day.php');
 
 class CalendarScraper
 {
 
-    private $calenders = array();
+    private $days = array();
     public function __construct($url)
     {
         $this->getCalendars($url);
@@ -38,20 +37,12 @@ class CalendarScraper
         //for every individual calender url create a new calendar object
         foreach($items as $item){
             $newUrl = $url . '/' .$item->getAttribute('href');
-            $path_parts = pathinfo($item->getAttribute('href'));
-            $name = $path_parts['filename'];
-            $object = $this->setCalendars($newUrl, $name);
-            array_push($this->calenders, $object);
+            $this->setCalendars($newUrl);
         }
     }
 
-    private function setCalendars($newUrl, $name){
-        $calendar = new Calendar();
-        $calendar->name = $name;
+    private function setCalendars($newUrl){
         $newDay = new Day();
-
-        $daysArray = array();
-
         try{
             $scraper = new \models\Scraper($newUrl);
             $result = $scraper->scrape($newUrl);
@@ -64,28 +55,18 @@ class CalendarScraper
 
         foreach($days as $day){
             $dayToUpper = strtoupper($day->nodeValue);
-
             foreach($statuses as $status){
                 $statusToUpper = strtoupper($status->nodeValue);
                 if($statusToUpper == 'OK'){
                     $newDay->day = $dayToUpper;
                     $newDay->available = $statusToUpper;
-                    array_push($daysArray, $newDay);
                 }
             }
         }
-        $calendar->days = $daysArray;
-        return $calendar;
+        array_push($this->days, $newDay);
     }
 
     public function getMatchingDays(){
-        foreach($this->calenders as $calender){
-            foreach($calender as $days){
-                if($calender->days){
-
-                }
-            }
-
-        }
+        return array_unique($this->days);
     }
 }

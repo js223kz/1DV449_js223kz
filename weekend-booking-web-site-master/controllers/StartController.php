@@ -20,14 +20,29 @@ require_once('models/CalendarScraper.php');
 class StartController
 {
         private $startView;
+
         public function __construct(Layout $commonView)
         {
             $this->startView = new \views\StartView();
             $commonView->render($this->startView->renderHTML());
 
             if($this->startView->startScraping()){
-                $calendarUrl = new \models\StartScraper($this->startView->getUrl());
-                return new \models\CalendarScraper($calendarUrl->getcalendarUrl());
+                $startScraper= new \models\StartScraper($this->startView->getUrl());
+                $calendarUrl = $startScraper->getCalendarUrl();
+                $movieUrl = $startScraper->getMovieUrl();
+                $restaurantUrl = $startScraper->getRestaurantUrl();
+
+
             }
         }
+
+    public function getPossibleDaysToMeet($calendarUrl){
+        $matchCalendars = \models\CalendarScraper($calendarUrl->getcalendarUrl());
+        $daysToMeet = $matchCalendars->getMatchingDays();
+    }
+
+    public function getMovies(){
+        $movies =
+
+    }
 }

@@ -9,8 +9,15 @@ class StartScraper
 {
 
     private $calendarUrl;
+    private $movieUrl;
+    private $restaurantUrl;
+
     public function __construct($url)
     {
+        $this->getUrls($url);
+    }
+
+    private function getUrls($url){
         try{
             $scraper = new \models\Scraper($url);
             $xpath = $scraper->scrape($url);
@@ -25,10 +32,22 @@ class StartScraper
             if($trimmed == 'calendar'){
                 $this->calendarUrl = $newUrl;
             }
+            if($trimmed == 'cinema'){
+                $this->movieUrl = $newUrl;
+            }
+            if($trimmed == 'dinner'){
+                $this->restaurantUrl = $newUrl;
+            }
         }
     }
 
-    public function getcalendarUrl(){
+    public function getCalendarUrl(){
         return $this->calendarUrl;
+    }
+    public function getMovieUrl(){
+        return $this->movieUrl;
+    }
+    public function getRestaurantUrl(){
+        return $this->restaurantUrl;
     }
 }

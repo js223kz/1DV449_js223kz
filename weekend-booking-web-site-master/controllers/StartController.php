@@ -22,22 +22,32 @@ class StartController
     private $startView;
     private $daysToMeet;
     private $moviesToSee;
-
+    private static $restaurantSession = "restaurantUrl";
 
     public function __construct(Layout $commonView)
     {
         $this->startView = new \views\StartView();
-        $commonView->render($this->startView->renderHTML());
+
 
         if($this->startView->startScraping()){
-            $startScraper= new \models\StartScraper($this->startView->getUrl());
-
-            $this->getPossibleDaysToMeet($startScraper->getCalendarUrl());
-            $this->getPossibleMovies($startScraper->getMovieUrl());
-
-            $this->startView->showPossibleDates($this->moviesToSee);
-            //$this->getPossibleRestaurantBookings($startScraper->getRestaurantUrl());
+            $this->scraper = new \models\StartScraper($this->startView->getUrl());
+            $restaurantUrl = $this->scraper->getRestaurantUrl();
+            $_SESSION[self::$restaurantSession] = $restaurantUrl;
+            $this->getPossibleDaysToMeet($this->scraper->getCalendarUrl());
+            $this->getPossibleMovies($this->scraper->getMovieUrl());
+            $listView = $this->startView->showPossibleDates($this->moviesToSee);
+            $commonView->render($listView);
         }
+        else if($this->startView->movieLinkIsClicked()){
+           $url = $_SESSION[self::$restaurantSession];
+            $this->getPossibleRestaurantBookings($url);
+            //$commonView->render($this->startView->showChoosenDinnerTime());
+        }
+        else{
+
+            $commonView->render($this->startView->renderHTML());
+        }
+
     }
 
     public function getPossibleDaysToMeet($calendarUrl){
@@ -51,7 +61,10 @@ class StartController
 
     }
     public function getPossibleRestaurantBookings($restaurantUrl){
+        $movie = $_SESSION["movie"];
         $bookings = new \models\RestaurantScraper();
-        $bookings->getPossibleBookings($restaurantUrl, $this->moviesToSee);
+        $bookings->getPossibleBookings($restaurantUrl, $movie);
+        session_unset();
+
     }
 }

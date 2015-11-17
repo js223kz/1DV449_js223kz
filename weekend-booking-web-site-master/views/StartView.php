@@ -13,10 +13,14 @@ class StartView
 {
     private static $submitURL = 'StartView::SubmitURL';
     private static $Url = 'StartView::Url';
+    private static $movieName = "movieName";
+    private static $movieTime = "&time";
+    private $clickedRow;
 
 
     public function renderHTML(){
         return '
+        <h1>Kolla möjliga tider</h1>
         <form method="post">
             <fieldset>
                 <legend>Ange url:</legend>
@@ -38,12 +42,35 @@ class StartView
         return $_POST[self::$Url];
     }
 
+   public function movieLinkIsClicked() {
+        if (isset($_GET[self::$movieName]) ) {
+            return true;
+        }
+        return false;
+    }
+    private function getMovieUrl($date) {
+        $_SESSION["movie"] = serialize($date);
+        return "?".self::$movieName."=$date->movieName";
+    }
     public function showPossibleDates($possibleDates){
-        if(isset($_POST[self::$submitURL])){
-            foreach($possibleDates as $dates){
-                
-            }
+
+        $ret = "<ul>";
+        $ret .= "<h1>Dessa filmer kan vi se</h1>";
+        foreach($possibleDates as $date){
+            $movieTime = $date->movieTime;
+            $day = $date->day;
+            $name = $date->movieName;
+            $this->clickedRow = $this->getMovieUrl($date);
+            $ret .= "<li>Filmen $name klockan $movieTime på $day <a href='$this->clickedRow' >Välj denna och boka bord</a></li>";
+            $ret .= "<br>";
 
         }
+        $ret .= "</ul>";
+        return $ret;
+    }
+
+    public function showChoosenDinnerTime(){
+
+        var_dump("inne i viewmetod");
     }
 }

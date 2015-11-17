@@ -40,15 +40,15 @@ class MovieScraper
 
         foreach($selectedDays as $key => $day){
             foreach($selectedMovies as $movie){
-                $url = $baseUrl . "/check?day=" .$day["value"]. "&movie=" . $movie;
+                $url = $baseUrl . "/check?day=" .$day["value"]. "&movie=" . $movie["value"];
                 try{
                     $scraper = new \models\Scraper($url);
                     $result = $scraper->scrape($url);
                     $json = $scraper->getJSON($result);
 
-                    foreach($json as $movie){
-                        if(!$movie["status"] == 0){
-                            $possibleDateObject = new \models\PossibleDate($day["day"], $movie["time"], $movie["movie"]);
+                    foreach($json as $value){
+                        if(!$value["status"] == 0){
+                            $possibleDateObject = new \models\PossibleDate($day["day"], $value["time"], $movie["name"]);
                             array_push($possibleMovies, $possibleDateObject);
                         }
                     }
@@ -92,7 +92,7 @@ class MovieScraper
         $moviesValue = array();
         foreach($movies as $movie){
             if(!empty($movie->getAttribute('value'))){
-                array_push($moviesValue, $movie->getAttribute('value'));
+                array_push($moviesValue, ["value" => $movie->getAttribute('value'), "name" => $movie->nodeValue]);
             }
         }
         return $moviesValue;

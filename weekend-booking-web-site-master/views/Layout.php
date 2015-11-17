@@ -11,19 +11,18 @@ namespace views;
 
 class Layout
 {
-    public function render($view) {
+    public function render($view, $list = null) {
     echo '<!DOCTYPE html>
       <html>
         <head>
           <meta charset="utf-8">
-          <title>Johannas webbskrapa</title>
         </head>
         <body>
-          <h1>Träffpunkt</h1>
-
           <div class="container">
               ' . $view. '
+              ' . $list. '
           </div>
+
          </body>
       </html>
     ';

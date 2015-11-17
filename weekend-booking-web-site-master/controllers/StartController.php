@@ -38,16 +38,20 @@ class StartController
             $listView = $this->startView->showPossibleDates($this->moviesToSee);
             $commonView->render($listView);
         }
+        //När jag går in i denna så blir det tokigt
         else if($this->startView->movieLinkIsClicked()){
-           $url = $_SESSION[self::$restaurantSession];
-            $this->getPossibleRestaurantBookings($url);
-            //$commonView->render($this->startView->showChoosenDinnerTime());
+            $url = $_SESSION[self::$restaurantSession];
+
+            //$possibleTimeToBook ska returnera en array, men
+            //den är null när den kommer hit
+            $possibleTimeToBook =  $this->getPossibleRestaurantBookings($url);
+            session_unset();
+            $commonView->render($this->startView->showChoosenDinnerTime($possibleTimeToBook));
         }
         else{
 
             $commonView->render($this->startView->renderHTML());
         }
-
     }
 
     public function getPossibleDaysToMeet($calendarUrl){

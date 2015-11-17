@@ -50,16 +50,16 @@ class StartView
     }
     private function getMovieUrl($date) {
         $_SESSION["movie"] = serialize($date);
-        return "?".self::$movieName."=$date->movieName";
+        return "?".self::$movieName."=$date->name";
     }
     public function showPossibleDates($possibleDates){
 
         $ret = "<ul>";
         $ret .= "<h1>Dessa filmer kan vi se</h1>";
         foreach($possibleDates as $date){
-            $movieTime = $date->movieTime;
+            $movieTime = $date->time;
             $day = $date->day;
-            $name = $date->movieName;
+            $name = $date->name;
             $this->clickedRow = $this->getMovieUrl($date);
             $ret .= "<li>Filmen $name klockan $movieTime på $day <a href='$this->clickedRow' >Välj denna och boka bord</a></li>";
             $ret .= "<br>";
@@ -69,8 +69,22 @@ class StartView
         return $ret;
     }
 
-    public function showChoosenDinnerTime(){
+    public function showChoosenDinnerTime($possibleTimeToBook){
+        $ret = "<ul>";
+        if(unserialize($possibleTimeToBook)  != null){
+            $ret .= "<h1>Vi har lediga platser</h1>";
+            foreach($possibleTimeToBook as $possible) {
+                $movieTime = $possible->time;
+                $day = $possible->day;
+                $name = $possible->name;
+                $ret .= "<li>Filmen $name klockan $movieTime på $day <a href='' >Boka bord</a></li>";
+                $ret .= "<br>";
+            }
 
-        var_dump("inne i viewmetod");
+        }else{
+            $ret .= "<h1>Tyvärr har vi inga lediga platser. Prova en annan tid!</h1>";
+        }
+            $ret .= "</ul>";
+            return $ret;
     }
 }

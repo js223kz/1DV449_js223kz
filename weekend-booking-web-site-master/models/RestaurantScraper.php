@@ -9,21 +9,21 @@
 namespace models;
 
 require_once('models/Scraper.php');
-require_once('models/Scraper.php');
+require_once('models/PossibleDate.php');
 
 class RestaurantScraper
 {
     private $movieToSee;
     private $convertedDay;
     private $convertedTime;
+
     public function getPossibleBookings($url, $movie){
         $this->movieToSee = unserialize($movie);
         $this->convertedDay = $this->convertDay();
         $this->convertedTime = $this->convertTime();
+        $availableForBooking = array();
 
-
-
-       try{
+        try{
             $scraper = new \models\Scraper($url);
             $result = $scraper->scrape($url);
             $dom = $scraper->getDOMDocument($result);
@@ -31,17 +31,20 @@ class RestaurantScraper
            $checkDays = $dom->query('//p[@class="MsoNormal"]//input[@type="radio"]');
 
            foreach($checkDays as $day){
-               $valueToCheckFor = $day->getAttribute("value")[0].$day->getAttribute("value")[1];
-               if($valueToCheckFor == $this->convertedDay){
-                   var_dump($day->getAttribute("value"));
+               $dayToCheckFor = $day->getAttribute("value")[0].$day->getAttribute("value")[1];
+               $startTime =  mb_substr($day->getAttribute("value"),3,2);
+               if($dayToCheckFor == $this->convertedDay){
+                   if($startTime >= $this->convertedTime + 2){
+                       $possibleObject = new \models\PossibleDate($this->movieToSee->day, $day->getAttribute("value"), $this->movieToSee->name);
+                       array_push($availableForBooking, serialize($possibleObject));
+                    }
                }
-           }
-
-
+            }
         }
         catch(\Exception $e){
             $e->getMessage();
         }
+        return $availableForBooking;
     }
 
     private function convertDay(){
@@ -58,9 +61,8 @@ class RestaurantScraper
     }
 
     private function convertTime(){
-        $time = $this->movieToSee->movieTime;
+        $time = $this->movieToSee->time;
         return current(explode(':', $time));
-
     }
 }
 

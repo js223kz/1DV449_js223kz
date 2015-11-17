@@ -12,15 +12,15 @@ namespace models;
 class PossibleDate
 {
     public $day;
-    public $movieTime;
-    public $movieName;
+    public $time;
+    public $name;
 
 
-    public function __construct($day, $movieTime, $movieName)
+    public function __construct($day, $time, $name)
     {
         $this->day = $day;
-        $this->movieTime = $movieTime;
-        $this->movieName = $movieName;
+        $this->time = $time;
+        $this->name = $name;
     }
 
 }

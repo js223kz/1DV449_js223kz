@@ -11,14 +11,17 @@ namespace models;
 require_once('models/Scraper.php');
 require_once('models/PossibleDate.php');
 
+//class that scrapes restaurants
+//for available tables on certain day
+//and at certain time
 class RestaurantScraper
 {
-    private $movieToSee;
+    private $movie;
     private $convertedDay;
     private $convertedTime;
 
     public function getPossibleBookings($url, $movie){
-        $this->movieToSee = unserialize($movie);
+        $this->movie = $movie;
         $this->convertedDay = $this->convertDay();
         $this->convertedTime = $this->convertTime();
         $availableForBooking = array();
@@ -35,9 +38,9 @@ class RestaurantScraper
                $startTime =  mb_substr($day->getAttribute("value"),3,2);
                if($dayToCheckFor == $this->convertedDay){
                    if($startTime >= $this->convertedTime + 2){
-                       $possibleObject = new \models\PossibleDate($this->movieToSee->day, $day->getAttribute("value"), $this->movieToSee->name);
+                       $possibleObject = new \models\PossibleDate($this->movie->getDay(), $day->getAttribute("value"), $this->movie->getName());
                        array_push($availableForBooking, serialize($possibleObject));
-                    }
+                   }
                }
             }
         }
@@ -47,8 +50,9 @@ class RestaurantScraper
         return $availableForBooking;
     }
 
+    //convert day to fit restaurantHTML
     private function convertDay(){
-        $day = $this->movieToSee->day;
+        $day = $this->movie->getDay();
         if($day == 'Fredag'){
             return 'fr';
         }
@@ -60,8 +64,9 @@ class RestaurantScraper
         }
     }
 
+    //removes :00 from ex 16:00
     private function convertTime(){
-        $time = $this->movieToSee->time;
+        $time = $this->movie->getTime();
         return current(explode(':', $time));
     }
 }

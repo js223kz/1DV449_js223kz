@@ -9,12 +9,13 @@
 namespace views;
 
 
+require_once('models/PossibleDate.php');
+
 class StartView
 {
     private static $submitURL = 'StartView::SubmitURL';
     private static $Url = 'StartView::Url';
     private static $movieName = "movieName";
-    private static $movieTime = "&time";
     private $clickedRow;
 
 
@@ -38,30 +39,34 @@ class StartView
         return false;
     }
 
+    //returns url user entered
     public function getUrl(){
         return $_POST[self::$Url];
     }
 
    public function movieLinkIsClicked() {
-        if (isset($_GET[self::$movieName]) ) {
+        if (isset($_GET["name"]) ) {
             return true;
         }
         return false;
     }
-    private function getMovieUrl($date) {
-        $_SESSION["movie"] = serialize($date);
-        return "?".self::$movieName."=$date->name";
+
+    //creates new object PossibleDate with values from
+    //clicked link values
+    public function getMovie(){
+       assert(isset($_GET["name"]));
+       return new \models\PossibleDate($_GET["day"], $_GET["time"], $_GET["name"]);
     }
+
     public function showPossibleDates($possibleDates){
 
         $ret = "<ul>";
         $ret .= "<h1>Dessa filmer kan vi se</h1>";
         foreach($possibleDates as $date){
-            $movieTime = $date->time;
-            $day = $date->day;
-            $name = $date->name;
-            $this->clickedRow = $this->getMovieUrl($date);
-            $ret .= "<li>Filmen $name klockan $movieTime på $day <a href='$this->clickedRow' >Välj denna och boka bord</a></li>";
+            $time = $date->getTime();
+            $day = $date->getDay();
+            $name = $date->getName();
+            $ret .= "<li>Filmen $name klockan $time på $day <a name='movielink' href='?name=$name&day=$day&time=$time'>Välj denna och boka bord</a></li>";
             $ret .= "<br>";
 
         }
@@ -70,14 +75,18 @@ class StartView
     }
 
     public function showChoosenDinnerTime($possibleTimeToBook){
+
         $ret = "<ul>";
-        if(unserialize($possibleTimeToBook)  != null){
+        if($possibleTimeToBook  != null){
             $ret .= "<h1>Vi har lediga platser</h1>";
             foreach($possibleTimeToBook as $possible) {
-                $movieTime = $possible->time;
-                $day = $possible->day;
-                $name = $possible->name;
-                $ret .= "<li>Filmen $name klockan $movieTime på $day <a href='' >Boka bord</a></li>";
+                $newPossible = unserialize($possible);
+                $movieTime = $newPossible->getTime();
+                $day = $newPossible->getDay();
+                $name = $newPossible->getName();
+                $startTime =  mb_substr($movieTime, 3, -2);
+                $endTime =  mb_substr($movieTime, -2);
+                $ret .= "<li>Det finns ett ledigt bord mellan klockan $startTime - $endTime efter filmen $name på $day <a href=''>Boka bord</a></li>";
                 $ret .= "<br>";
             }
 
@@ -87,4 +96,5 @@ class StartView
             $ret .= "</ul>";
             return $ret;
     }
+
 }

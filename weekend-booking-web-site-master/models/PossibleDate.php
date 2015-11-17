@@ -8,13 +8,14 @@
 
 namespace models;
 
-
+//class to handle possible dates
+//wheater it´s a movie or possible
+//restaurant booking
 class PossibleDate
 {
-    public $day;
-    public $time;
-    public $name;
-
+    private $day;
+    private $time;
+    private $name;
 
     public function __construct($day, $time, $name)
     {
@@ -23,4 +24,13 @@ class PossibleDate
         $this->name = $name;
     }
 
+    public function getDay(){
+        return $this->day;
+    }
+    public function getTime(){
+        return $this->time;
+    }
+    public function getName(){
+        return $this->name;
+    }
 }

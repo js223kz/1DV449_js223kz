@@ -20,37 +20,40 @@ require_once('models/RestaurantScraper.php');
 class StartController
 {
     private $startView;
+    private $parentView;
     private $daysToMeet;
     private $moviesToSee;
     private static $restaurantSession = "restaurantUrl";
 
     public function __construct(Layout $commonView)
     {
+        $this->parentView = $commonView;
         $this->startView = new \views\StartView();
+        $this->checkUserChoice();
+    }
 
-
+    public function checkUserChoice(){
+        //if user entered an url and clicked to start scraping
         if($this->startView->startScraping()){
             $this->scraper = new \models\StartScraper($this->startView->getUrl());
             $restaurantUrl = $this->scraper->getRestaurantUrl();
             $_SESSION[self::$restaurantSession] = $restaurantUrl;
+
             $this->getPossibleDaysToMeet($this->scraper->getCalendarUrl());
             $this->getPossibleMovies($this->scraper->getMovieUrl());
+
             $listView = $this->startView->showPossibleDates($this->moviesToSee);
-            $commonView->render($listView);
+            $this->parentView->render($listView);
         }
-        //När jag går in i denna så blir det tokigt
+        //if user clicke link with certain movie at a certain time
         else if($this->startView->movieLinkIsClicked()){
             $url = $_SESSION[self::$restaurantSession];
-
-            //$possibleTimeToBook ska returnera en array, men
-            //den är null när den kommer hit
-            $possibleTimeToBook =  $this->getPossibleRestaurantBookings($url);
+            $this->getPossibleRestaurantBookings($url);
             session_unset();
-            $commonView->render($this->startView->showChoosenDinnerTime($possibleTimeToBook));
         }
         else{
 
-            $commonView->render($this->startView->renderHTML());
+            $this->parentView->render($this->startView->renderHTML());
         }
     }
 
@@ -62,13 +65,11 @@ class StartController
     public function getPossibleMovies($movieUrl){
         $movies = new \models\MovieScraper($this->daysToMeet);
         $this->moviesToSee = $movies->getPossibleMovies($movieUrl);
-
     }
-    public function getPossibleRestaurantBookings($restaurantUrl){
-        $movie = $_SESSION["movie"];
-        $bookings = new \models\RestaurantScraper();
-        $bookings->getPossibleBookings($restaurantUrl, $movie);
-        session_unset();
 
+    public function getPossibleRestaurantBookings($restaurantUrl){
+        $bookings = new \models\RestaurantScraper();
+        $possibleTimeToBook = $bookings->getPossibleBookings($restaurantUrl, $this->startView->getMovie());
+        $this->parentView->render($this->startView->showChoosenDinnerTime($possibleTimeToBook));
     }
 }

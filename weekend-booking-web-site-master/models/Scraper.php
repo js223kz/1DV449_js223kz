@@ -8,7 +8,9 @@
 
 namespace models;
 
-
+//class that initiate a scraper
+//could accept options as parameter
+//to enable post scrape
 class Scraper
 {
 
@@ -27,6 +29,10 @@ class Scraper
         return $result;
     }
 
+    /**
+     * @param $result (result from curlhandler created in $this->scrape())
+     * @return \DOMXPath
+     */
     public function getDOMDocument($result){
         $dom = new \DOMDocument();
         if($dom->loadHTML($result)){
@@ -37,6 +43,10 @@ class Scraper
         }
     }
 
+    /**
+     * @param $result (result from curlhandler created in $this->scrape())
+     * @return json
+     */
     public function getJSON($result){
         return json_decode($result, true);
     }

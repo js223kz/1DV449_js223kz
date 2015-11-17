@@ -10,15 +10,22 @@ namespace models;
 
 require_once('models/PossibleDate.php');
 
+//class that scrapes movieSite
 class MovieScraper
 {
     private $daysToMeet;
     public function __construct($daysToMeet)
     {
+        //possible daysToMeet comes from CalenderScraper
         $this->daysToMeet = $daysToMeet;
         $this->changeToSwedish($daysToMeet);
     }
 
+    /**
+     * @param $url (passed in from StartController and generated i StartScraper)
+     * @return array with possible movies that fits $daysToMeet
+     * @throws Exception
+     */
     public function getPossibleMovies($url){
         try{
             $scraper = new \models\Scraper($url);
@@ -35,9 +42,21 @@ class MovieScraper
         return $possibleMovies;
     }
 
+    /**
+     * called in $this->getPossibleMovies()
+     * @param $baseUrl
+     * @param $selectedDays
+     * @param $selectedMovies
+     * @return array array with possible movies that fits $daysToMeet
+     * @throws Exception
+     */
+
     private function getMovies($baseUrl, $selectedDays, $selectedMovies){
         $possibleMovies = array();
 
+        //foreach selected day check movies on that day
+        //if movie is not sold out ($value["status"] == 0)
+        //than create a PossibleDate pobject
         foreach($selectedDays as $key => $day){
             foreach($selectedMovies as $movie){
                 $url = $baseUrl . "/check?day=" .$day["value"]. "&movie=" . $movie["value"];
@@ -74,6 +93,12 @@ class MovieScraper
             }
         }
     }
+
+    /**
+     * @param $dom domDocument returned from StartScraper
+     * @return array with values from dopdown list
+     * that fits $daysToMeet
+     */
     private function getDayValue($dom){
         $days = $dom->query('//select[@id = "day"]//option');
         $daysValue = array();
@@ -87,6 +112,10 @@ class MovieScraper
         return $daysValue;
     }
 
+    /**
+     * @param $dom domDocument returned from StartScraper
+     * @return array with values from dopdown list
+     */
     private function getMovieValues($dom){
         $movies = $dom->query('//select[@id = "movie"]//option');
         $moviesValue = array();

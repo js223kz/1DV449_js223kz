@@ -5,9 +5,10 @@ namespace models;
 
 require_once('models/Scraper.php');
 
+//class that scrapes first site
+// value entered by user in StartView
 class StartScraper
 {
-
     private $calendarUrl;
     private $movieUrl;
     private $restaurantUrl;
@@ -26,7 +27,9 @@ class StartScraper
         catch(\Exception $e){
             $e->getMessage();
         }
+
         $items = $dom->query('//ol//li/a');
+
         foreach($items as $item){
             $trimmed = trim($item->getAttribute('href'), " /");
             $newUrl = $url . $trimmed;

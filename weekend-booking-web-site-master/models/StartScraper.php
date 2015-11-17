@@ -19,13 +19,14 @@ class StartScraper
 
     private function getUrls($url){
         try{
-            $scraper = new \models\Scraper($url);
-            $xpath = $scraper->scrape($url);
+            $scraper = new \models\Scraper();
+            $result = $scraper->scrape($url);
+            $dom = $scraper->getDOMDocument($result);
         }
         catch(\Exception $e){
             $e->getMessage();
         }
-        $items = $xpath->query('//ol//li/a');
+        $items = $dom->query('//ol//li/a');
         foreach($items as $item){
             $trimmed = trim($item->getAttribute('href'), " /");
             $newUrl = $url . $trimmed;

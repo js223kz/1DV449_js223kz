@@ -37,4 +37,13 @@ class StartView
     public function getUrl(){
         return $_POST[self::$Url];
     }
+
+    public function showPossibleDates($possibleDates){
+        if(isset($_POST[self::$submitURL])){
+            foreach($possibleDates as $dates){
+                
+            }
+
+        }
+    }
 }

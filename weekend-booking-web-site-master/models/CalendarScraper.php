@@ -25,14 +25,14 @@ class CalendarScraper
         try{
             $scraper = new \models\Scraper($url);
             $result = $scraper->scrape($url);
+            $dom = $scraper->getDOMDocument($result);
         }
         catch(\Exception $e){
             $e->getMessage();
         }
-        $xpath = $result;
 
         //get individual calendar urls
-        $items = $xpath->query('//div[@class = "col s12 center"]/ul//li/a');
+        $items = $dom->query('//div[@class = "col s12 center"]/ul//li/a');
 
         //for every individual calender url create a new calendar object
         foreach($items as $item){
@@ -46,12 +46,13 @@ class CalendarScraper
         try{
             $scraper = new \models\Scraper($newUrl);
             $result = $scraper->scrape($newUrl);
+            $dom = $scraper->getDOMDocument($result);
         }
         catch(\Exception $e){
             $e->getMessage();
         }
-        $days = $result->query('//table//thead//tr/th');
-        $statuses = $result->query('//table//tbody//tr/td');
+        $days = $dom->query('//table//thead//tr/th');
+        $statuses = $dom->query('//table//tbody//tr/td');
 
         foreach($days as $day){
             $dayToUpper = strtoupper($day->nodeValue);
@@ -67,6 +68,12 @@ class CalendarScraper
     }
 
     public function getMatchingDays(){
-        return array_unique($this->days);
+
+        for($i = 0; $i < count($this->days); $i++){
+            if($this->days[$i] == $this->days[$i + 1]){
+                unset($this->days[$i]);
+            }
+        }
+        return $this->days;
     }
 }

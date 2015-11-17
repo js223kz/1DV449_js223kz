@@ -14,35 +14,44 @@ require_once('views/StartView.php');
 require_once('views/Layout.php');
 require_once('models/StartScraper.php');
 require_once('models/CalendarScraper.php');
-
-
+require_once('models/MovieScraper.php');
+require_once('models/RestaurantScraper.php');
 
 class StartController
 {
-        private $startView;
-
-        public function __construct(Layout $commonView)
-        {
-            $this->startView = new \views\StartView();
-            $commonView->render($this->startView->renderHTML());
-
-            if($this->startView->startScraping()){
-                $startScraper= new \models\StartScraper($this->startView->getUrl());
-                $calendarUrl = $startScraper->getCalendarUrl();
-                $movieUrl = $startScraper->getMovieUrl();
-                $restaurantUrl = $startScraper->getRestaurantUrl();
+    private $startView;
+    private $daysToMeet;
+    private $moviesToSee;
 
 
-            }
+    public function __construct(Layout $commonView)
+    {
+        $this->startView = new \views\StartView();
+        $commonView->render($this->startView->renderHTML());
+
+        if($this->startView->startScraping()){
+            $startScraper= new \models\StartScraper($this->startView->getUrl());
+
+            $this->getPossibleDaysToMeet($startScraper->getCalendarUrl());
+            $this->getPossibleMovies($startScraper->getMovieUrl());
+
+            $this->startView->showPossibleDates($this->moviesToSee);
+            //$this->getPossibleRestaurantBookings($startScraper->getRestaurantUrl());
         }
-
-    public function getPossibleDaysToMeet($calendarUrl){
-        $matchCalendars = \models\CalendarScraper($calendarUrl->getcalendarUrl());
-        $daysToMeet = $matchCalendars->getMatchingDays();
     }
 
-    public function getMovies(){
-        $movies =
+    public function getPossibleDaysToMeet($calendarUrl){
+        $matchCalendars = new \models\CalendarScraper($calendarUrl);
+        $this->daysToMeet = $matchCalendars->getMatchingDays();
+    }
 
+    public function getPossibleMovies($movieUrl){
+        $movies = new \models\MovieScraper($this->daysToMeet);
+        $this->moviesToSee = $movies->getPossibleMovies($movieUrl);
+
+    }
+    public function getPossibleRestaurantBookings($restaurantUrl){
+        $bookings = new \models\RestaurantScraper();
+        $bookings->getPossibleBookings($restaurantUrl, $this->moviesToSee);
     }
 }

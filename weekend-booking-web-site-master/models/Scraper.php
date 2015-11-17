@@ -24,7 +24,10 @@ class Scraper
             throw new Exception(curl_error($curl));
         }
         curl_close ($curl);
+        return $result;
+    }
 
+    public function getDOMDocument($result){
         $dom = new \DOMDocument();
         if($dom->loadHTML($result)){
             return new \DOMXPath($dom);
@@ -32,5 +35,9 @@ class Scraper
         }else{
             die("HTML kan inte läsas in");
         }
+    }
+
+    public function getJSON($result){
+        return json_decode($result, true);
     }
 }

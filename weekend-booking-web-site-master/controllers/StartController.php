@@ -16,6 +16,7 @@ require_once('models/StartScraper.php');
 require_once('models/CalendarScraper.php');
 require_once('models/MovieScraper.php');
 require_once('models/RestaurantScraper.php');
+require_once('models/BookTable.php');
 
 class StartController
 {
@@ -23,7 +24,7 @@ class StartController
     private $parentView;
     private $daysToMeet;
     private $moviesToSee;
-    private static $restaurantSession = "restaurantUrl";
+    private static $restaurantUrl = "restaurantUrl";
 
     public function __construct(Layout $commonView)
     {
@@ -35,21 +36,23 @@ class StartController
     public function checkUserChoice(){
         //if user entered an url and clicked to start scraping
         if($this->startView->startScraping()){
-            $this->scraper = new \models\StartScraper($this->startView->getUrl());
-            $restaurantUrl = $this->scraper->getRestaurantUrl();
-            $_SESSION[self::$restaurantSession] = $restaurantUrl;
+            $scraper = new \models\StartScraper($this->startView->getUrl());
+            $restaurantUrl = $scraper->getRestaurantUrl();
+            $_SESSION[self::$restaurantUrl] = $restaurantUrl;
 
-            $this->getPossibleDaysToMeet($this->scraper->getCalendarUrl());
-            $this->getPossibleMovies($this->scraper->getMovieUrl());
+            $this->getPossibleDaysToMeet($scraper->getCalendarUrl());
+            $this->getPossibleMovies($scraper->getMovieUrl());
 
             $listView = $this->startView->showPossibleDates($this->moviesToSee);
             $this->parentView->render($listView);
         }
         //if user clicke link with certain movie at a certain time
         else if($this->startView->movieLinkIsClicked()){
-            $url = $_SESSION[self::$restaurantSession];
-            $this->getPossibleRestaurantBookings($url);
-            session_unset();
+            $this->getPossibleRestaurantBookings();
+            //session_unset();
+        }
+        else if($this->startView->userWantsToBookTable()){
+            $this->bookATable();
         }
         else{
 
@@ -67,9 +70,15 @@ class StartController
         $this->moviesToSee = $movies->getPossibleMovies($movieUrl);
     }
 
-    public function getPossibleRestaurantBookings($restaurantUrl){
+    public function getPossibleRestaurantBookings(){
         $bookings = new \models\RestaurantScraper();
-        $possibleTimeToBook = $bookings->getPossibleBookings($restaurantUrl, $this->startView->getMovie());
+        $possibleTimeToBook = $bookings->getPossibleBookings($_SESSION[self::$restaurantUrl], $this->startView->getMovie());
         $this->parentView->render($this->startView->showChoosenDinnerTime($possibleTimeToBook));
+    }
+
+    public function bookATable(){
+        $bookTable = new \models\BookTable();
+        $bookingForm = $bookTable->getBookingForm($_SESSION[self::$restaurantUrl]);
+        $this->parentView->render($this->startView->showBookingForm($bookingForm));
     }
 }

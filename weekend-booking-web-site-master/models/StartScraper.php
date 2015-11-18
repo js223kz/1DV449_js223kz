@@ -15,10 +15,16 @@ class StartScraper
 
     public function __construct($url)
     {
+        $lastCharacter = substr($url, -1);
+        if($lastCharacter != '/'){
+            $url = $url . '/';
+        }
         $this->getUrls($url);
     }
 
     private function getUrls($url){
+
+
         try{
             $scraper = new \models\Scraper();
             $result = $scraper->scrape($url);

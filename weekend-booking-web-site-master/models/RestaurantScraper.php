@@ -19,6 +19,7 @@ class RestaurantScraper
     private $movie;
     private $convertedDay;
     private $convertedTime;
+    private $result;
 
     public function getPossibleBookings($url, $movie){
         $this->movie = $movie;
@@ -28,8 +29,8 @@ class RestaurantScraper
 
         try{
             $scraper = new \models\Scraper($url);
-            $result = $scraper->scrape($url);
-            $dom = $scraper->getDOMDocument($result);
+            $this->result = $scraper->scrape($url);
+            $dom = $scraper->getDOMDocument($this->result);
 
            $checkDays = $dom->query('//p[@class="MsoNormal"]//input[@type="radio"]');
 
@@ -68,6 +69,10 @@ class RestaurantScraper
     private function convertTime(){
         $time = $this->movie->getTime();
         return current(explode(':', $time));
+    }
+
+    public function getResult(){
+        return $this->result;
     }
 }
 

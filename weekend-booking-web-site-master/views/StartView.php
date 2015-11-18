@@ -15,14 +15,11 @@ class StartView
 {
     private static $submitURL = 'StartView::SubmitURL';
     private static $Url = 'StartView::Url';
-    private static $movieName = "movieName";
-    private $clickedRow;
-
 
     public function renderHTML(){
         return '
         <h1>Kolla möjliga tider</h1>
-        <form method="post">
+        <form method="post" action="">
             <fieldset>
                 <legend>Ange url:</legend>
                 <input type="text" id="' . self::$Url. '"name="' . self::$Url. '"/>
@@ -74,6 +71,14 @@ class StartView
         return $ret;
     }
 
+
+    public function userWantsToBookTable(){
+        if (isset($_GET["booktable"]) ) {
+            return true;
+        }
+        return false;
+    }
+
     public function showChoosenDinnerTime($possibleTimeToBook){
 
         $ret = "<ul>";
@@ -86,7 +91,7 @@ class StartView
                 $name = $newPossible->getName();
                 $startTime =  mb_substr($movieTime, 3, -2);
                 $endTime =  mb_substr($movieTime, -2);
-                $ret .= "<li>Det finns ett ledigt bord mellan klockan $startTime - $endTime efter filmen $name på $day <a href=''>Boka bord</a></li>";
+                $ret .= "<li>Det finns ett ledigt bord mellan klockan $startTime - $endTime efter filmen $name på $day <a href='?booktable'>Boka bord</a></li>";
                 $ret .= "<br>";
             }
 
@@ -95,6 +100,10 @@ class StartView
         }
             $ret .= "</ul>";
             return $ret;
+    }
+
+    public function showBookingForm($result){
+        echo $result;
     }
 
 }
